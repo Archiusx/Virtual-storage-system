@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>📁 My Files (with Folders)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-size: 14px;
+    }
+    .window {
+      width: 100%;
+      max-width: 100vw;
+      margin: 0;
+      background: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #d1d1d1;
+    }
+    .title-bar {
+      background: #0078d4;
+      color: white;
+      padding: 12px 16px;
+      font-weight: 400;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #005a9e;
+    }
+    .content {
+      padding: 16px;
+      flex: 1;
+      overflow-y: auto;
+      background: #ffffff;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+      align-items: center;
+    }
+    .toolbar input[type="file"] {
+      flex: 1;
+      min-width: 120px;
+      padding: 8px 12px;
+      border: 1px solid #8a8a8a;
+      border-radius: 2px;
+      background: #ffffff;
+      color: #323130;
+      font-size: 14px;
+      font-family: "Segoe UI", sans-serif;
+      cursor: pointer;
+    }
+    .toolbar input[type="file"]:hover {
+      border-color: #0078d4;
+    }
+    .toolbar input[type="file"]:focus {
+      border-color: #0078d4;
+      outline: none;
+    }
+    .toolbar button {
+      padding: 8px 16px;
+      font-size: 14px;
+      border: 1px solid #8a8a8a;
+      border-radius: 2px;
+      background: #f3f2f1;
+      color: #323130;
+      cursor: pointer;
+      font-family: "Segoe UI", sans-serif;
+      font-weight: 400;
+    }
+    .toolbar button:hover {
+      background: #edebe9;
+      border-color: #323130;
+    }
+    .toolbar button:active {
+      background: #e1dfdd;
+    }
+    .file-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 12px;
+      padding: 8px 0;
+    }
+    .file-item {
+      background: #ffffff;
+      border: 1px solid #e1dfdd;
+      border-radius: 2px;
+      padding: 12px 8px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      min-height: 100px;
+      transition: background-color 0.1s ease;
+    }
+    .file-item:hover {
+      background: #f3f2f1;
+      border-color: #c8c6c4;
+    }
+    .file-item:active {
+      background: #edebe9;
+    }
+    .file-icon {
+      font-size: 32px;
+      margin-bottom: 6px;
+    }
+    .file-name {
+      font-size: 12px;
+      color: #323130;
+      word-break: break-word;
+      line-height: 1.2;
+      text-align: center;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .context-menu {
+      position: fixed;
+      background: #ffffff;
+      border: 1px solid #8a8a8a;
+      z-index: 999;
+      padding: 4px 0;
+      border-radius: 2px;
+      display: none;
+      min-width: 150px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .context-menu button {
+      width: 100%;
+      background: none;
+      border: none;
+      text-align: left;
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      color: #323130;
+      font-family: "Segoe UI", sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .context-menu button:hover {
+      background: #f3f2f1;
+    }
+    .context-menu button:active {
+      background: #edebe9;
+    }
+    
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      .title-bar {
+        padding: 14px 12px;
+        font-size: 16px;
+      }
+      .content {
+        padding: 12px;
+      }
+      .toolbar {
+        gap: 6px;
+      }
+      .toolbar input[type="file"] {
+        padding: 10px 8px;
+        font-size: 14px;
+        min-width: 100px;
+      }
+      .toolbar button {
+        padding: 10px 12px;
+        font-size: 14px;
+      }
+      .file-grid {
+        grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+        gap: 10px;
+      }
+      .file-item {
+        padding: 10px 6px;
+        min-height: 90px;
+      }
+      .file-icon {
+        font-size: 28px;
+      }
+      .file-name {
+        font-size: 11px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .title-bar {
+        padding: 12px 10px;
+        font-size: 15px;
+      }
+      .content {
+        padding: 10px;
+      }
+      .toolbar {
+        gap: 4px;
+      }
+      .toolbar input[type="file"] {
+        padding: 8px 6px;
+        font-size: 13px;
+        min-width: 80px;
+      }
+      .toolbar button {
+        padding: 8px 10px;
+        font-size: 13px;
+      }
+      .file-grid {
+        grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+        gap: 8px;
+      }
+      .file-item {
+        padding: 8px 4px;
+        min-height: 80px;
+      }
+      .file-icon {
+        font-size: 24px;
+      }
+      .file-name {
+        font-size: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="window">
+    <div class="title-bar">📁 My Files (Folders Enabled)</div>
+    <div class="content">
+      <div class="toolbar">
+        <input type="file" multiple onchange="handleUpload(event)">
+        <button onclick="createFolder()">📁 New Folder</button>
+      </div>
+      <div class="file-grid" id="fileGrid"></div>
+    </div>
+    <div class="context-menu" id="contextMenu">
+      <button onclick="previewFile()">👁️ Preview</button>
+      <button onclick="cutFile()">✂️ Cut</button>
+      <button onclick="copyFile()">📋 Copy</button>
+      <button onclick="pasteFile()">📌 Paste</button>
+      <button onclick="saveFile()">💾 Save</button>
+      <button onclick="deleteFile()">🗑️ Delete</button>
+    </div>
+
+<script>
+  let db, clipboard = null, cutMode = false, selectedFileKey = null;
+  let currentFolder = "root";
+  let pressTimer;
+
+  window.onload = () => {
+    initDB();
+  };
+
+  function initDB() {
+    const request = indexedDB.open("MyFileDB", 2);
+    request.onerror = () => alert("IndexedDB not supported");
+    request.onsuccess = () => {
+      db = request.result;
+      loadFiles();
+    };
+    request.onupgradeneeded = e => {
+      db = e.target.result;
+      if (!db.objectStoreNames.contains("files")) {
+        db.createObjectStore("files", { keyPath: "key", autoIncrement: true });
+      }
+    };
+  }
+
+  function loadFiles() {
+    const tx = db.transaction("files", "readonly");
+    const store = tx.objectStore("files");
+    const request = store.getAll();
+    request.onsuccess = () => {
+      const all = request.result;
+      const files = all.filter(f => f.folder === currentFolder);
+      renderFiles(files);
+
+      // Show/hide back button based on folder
+      const toolbar = document.querySelector(".toolbar");
+      if (currentFolder !== "root" && !document.getElementById("backBtn")) {
+        const backBtn = document.createElement("button");
+        backBtn.id = "backBtn";
+        backBtn.innerText = "⬅ Back";
+        backBtn.onclick = () => {
+          currentFolder = "root";
+          loadFiles();
+        };
+        toolbar.appendChild(backBtn);
+      } else if (currentFolder === "root") {
+        const backBtn = document.getElementById("backBtn");
+        if (backBtn) backBtn.remove();
+      }
+    };
+  }
+
+  function renderFiles(files) {
+    const grid = document.getElementById("fileGrid");
+    grid.innerHTML = "";
+    files.forEach(file => {
+      const div = document.createElement("div");
+      div.className = "file-item";
+      div.innerHTML = `
+        <div class="file-icon">${file.type === "folder" ? "📁" : getIcon(file.type)}</div>
+        <div class="file-name">${file.name}</div>
+      `;
+      div.addEventListener("touchstart", e => {
+        selectedFileKey = file.key;
+        pressTimer = setTimeout(() => {
+          e.preventDefault();
+          showMenu(e.touches[0].clientX, e.touches[0].clientY);
+        }, 500);
+      });
+      div.addEventListener("touchend", () => clearTimeout(pressTimer));
+      div.addEventListener("contextmenu", e => {
+        e.preventDefault();
+        selectedFileKey = file.key;
+        showMenu(e.clientX, e.clientY);
+      });
+      div.addEventListener("dblclick", () => {
+        if (file.type === "folder") {
+          currentFolder = file.name;
+          loadFiles();
+        } else {
+          selectedFileKey = file.key;
+          previewFile();
+        }
+      });
+      grid.appendChild(div);
+    });
+  }
+
+  function getIcon(type) {
+    if (!type) return "🗂️";
+    if (type.includes("pdf")) return "📕";
+    if (type.includes("image")) return "🖼️";
+    if (type.includes("zip")) return "🗜️";
+    if (type.includes("audio")) return "🎵";
+    if (type.includes("video")) return "🎞️";
+    if (type.includes("html")) return "🌐";
+    if (type.includes("text")) return "📄";
+    return "🗂️";
+  }
+
+  function handleUpload(e) {
+    const files = e.target.files;
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const tx = db.transaction("files", "readwrite");
+        const store = tx.objectStore("files");
+        store.add({ name: file.name, type: file.type, content: reader.result, folder: currentFolder });
+        tx.oncomplete = loadFiles;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function createFolder() {
+    const folderName = prompt("Enter folder name:");
+    if (!folderName) return;
+    const tx = db.transaction("files", "readwrite");
+    const store = tx.objectStore("files");
+    store.add({ name: folderName, type: "folder", folder: currentFolder });
+    tx.oncomplete = loadFiles;
+  }
+
+  function showMenu(x, y) {
+    const menu = document.getElementById("contextMenu");
+    
+    // Adjust position to keep menu on screen
+    let menuX = x;
+    let menuY = y;
+    
+    if (menuX + 150 > window.innerWidth) {
+      menuX = window.innerWidth - 150;
+    }
+    if (menuY + 180 > window.innerHeight) {
+      menuY = window.innerHeight - 180;
+    }
+    
+    menu.style.left = menuX + "px";
+    menu.style.top = menuY + "px";
+    menu.style.display = "block";
+  }
+
+  document.body.addEventListener("click", () => {
+    document.getElementById("contextMenu").style.display = "none";
+  });
+
+  function hideMenu() {
+    document.getElementById("contextMenu").style.display = "none";
+  }
+
+  function previewFile() {
+    const tx = db.transaction("files", "readonly");
+    const store = tx.objectStore("files");
+    const req = store.get(selectedFileKey);
+    req.onsuccess = () => {
+      const file = req.result;
+      const type = file.type;
+      const win = window.open();
+      let content = "";
+
+      if (type.includes("image")) {
+        content = `<img src="${file.content}" style="max-width:100%;max-height:100vh;">`;
+      } else if (type.includes("pdf")) {
+        content = `<iframe src="${file.content}" style="width:100%;height:100vh;border:none;"></iframe>`;
+      } else if (type.includes("audio")) {
+        content = `<audio controls autoplay style="width:100%"><source src="${file.content}" type="${type}">Your browser does not support audio.</audio>`;
+      } else if (type.includes("video")) {
+        content = `<video controls autoplay style="width:100%;max-height:100vh"><source src="${file.content}" type="${type}">Your browser does not support video.</video>`;
+      } else if (type.includes("html")) {
+        // HTML files open as text
+        content = `<pre style="white-space:pre-wrap;padding:16px;background:#f8f8f8;font-family:Consolas,monospace;font-size:14px;line-height:1.4;overflow:auto;margin:0;">${atob(file.content.split(",")[1])}</pre>`;
+      } else if (type.includes("text") || type.includes("json")) {
+        content = `<pre style="white-space:pre-wrap;padding:16px;background:#f8f8f8;font-family:Consolas,monospace;font-size:14px;line-height:1.4;overflow:auto;margin:0;">${atob(file.content.split(",")[1])}</pre>`;
+      } else {
+        content = `<p style="padding:16px;font-family:'Segoe UI',sans-serif;">Preview not supported for this file type.</p>`;
+      }
+
+      win.document.write(`<title>${file.name}</title><body style="margin:0;padding:0;font-family:'Segoe UI',sans-serif;background:#ffffff;">${content}</body>`);
+      hideMenu();
+    };
+  }
+
+  function cutFile() {
+    const tx = db.transaction("files", "readonly");
+    const store = tx.objectStore("files");
+    const req = store.get(selectedFileKey);
+    req.onsuccess = () => {
+      clipboard = req.result;
+      cutMode = true;
+      hideMenu();
+    };
+  }
+
+  function copyFile() {
+    const tx = db.transaction("files", "readonly");
+    const store = tx.objectStore("files");
+    const req = store.get(selectedFileKey);
+    req.onsuccess = () => {
+      clipboard = req.result;
+      cutMode = false;
+      hideMenu();
+    };
+  }
+
+  function pasteFile() {
+    if (!clipboard) return;
+    const tx = db.transaction("files", "readwrite");
+    const store = tx.objectStore("files");
+    store.add({ name: clipboard.name, type: clipboard.type, content: clipboard.content, folder: currentFolder });
+    if (cutMode) {
+      db.transaction("files", "readwrite").objectStore("files").delete(clipboard.key);
+      cutMode = false;
+    }
+    tx.oncomplete = () => {
+      loadFiles();
+      hideMenu();
+    };
+  }
+
+  function saveFile() {
+    const tx = db.transaction("files", "readonly");
+    const store = tx.objectStore("files");
+    const req = store.get(selectedFileKey);
+    req.onsuccess = () => {
+      const file = req.result;
+      const a = document.createElement("a");
+      a.href = file.content;
+      a.download = file.name;
+      a.click();
+      hideMenu();
+    };
+  }
+
+  function deleteFile() {
+    const tx = db.transaction("files", "readwrite");
+    const store = tx.objectStore("files");
+    store.delete(selectedFileKey).onsuccess = () => {
+      loadFiles();
+      hideMenu();
+    };
+  }
+</script>
+</body>
+</html>
